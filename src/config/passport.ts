@@ -40,7 +40,7 @@ passport.use(
     },
     async (accessToken, refreshToken, profile, done) => {
       await sequelize.authenticate().then(async () => {
-        const user = await models.users.findOne({
+        let user = await models.users.findOne({
           where: {
             google_id: profile.id
           }
@@ -48,21 +48,26 @@ passport.use(
         var token = jwt.sign({id: user.id}, process.env.JWT_SECRET, {expiresIn: '1h'});
 
         if (!user) {
-          const newUser = await models.users.create({
+          let newUser = await models.users.create({
             alias: profile.emails[0].value,
             name: profile.name.givenName + (profile.name.middleName != undefined ? " " + profile.name.middleName : "") + " " + profile.name.familyName,
             google_id: profile.id,
             date_registered: new Date(),
-            email: profile.emails[0].value
+            email: profile.emails[0].value,
+            token: token
           });
-
-          newUser.token = token;
 
           if (newUser) {
             done(null, newUser);
           }
         } else {
+          const result = await models.users.update(
+            { token: token },
+            { where: { id: user.id}}
+          );
+
           user.token = token;
+
           done(null, user);
         }
       });
@@ -80,7 +85,7 @@ passport.use(
       await sequelize.authenticate().then(async () => {
         const user = await models.users.findOne({
           where: {
-            id: jwtPayload.data
+            id: jwtPayload.id
           }
         });
 
