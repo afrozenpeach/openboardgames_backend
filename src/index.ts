@@ -5,14 +5,6 @@ const port = 3000
 import dotenv from "dotenv";
 dotenv.config();
 
-import path from 'path';
-
-import { Sequelize } from "sequelize"
-const sequelize = new Sequelize('openboardgames', process.env.DB_USER, process.env.DB_PASSWORD, { host: 'localhost', dialect: 'mysql' })
-
-import { initModels } from "../database/models/init-models"
-const models = initModels(sequelize);
-
 app.set('views', 'src/views');
 app.set('view engine', 'ejs');
 app.use(express.json());
