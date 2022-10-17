@@ -18,8 +18,8 @@ router.get('/', async (req, res) => {
   });
 });
 
-router.post('/', passport.authenticate('jwt', { session: false }), async (req, res) => {
-  res.send('test');
+router.post('/', passport.authenticate(['jwt', 'google']), (req, res) => {
+
 });
 
 export default router;
