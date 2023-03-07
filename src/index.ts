@@ -1,6 +1,5 @@
 import express from "express"
 const app = express()
-const port = 3000
 
 import dotenv from "dotenv";
 dotenv.config();
@@ -10,15 +9,26 @@ app.set('view engine', 'ejs');
 app.use(express.json());
 app.use(express.urlencoded({extended: false}));
 
+import cors from "cors";
+
+app.use(
+  cors({
+    origin: `https://localhost:${ process.env.PORT }`,
+    methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
+    credentials: true
+  })
+)
+
 import session from "express-session";
 app.use(session({
   secret: process.env.COOKIE_KEY,
   resave: true,
   saveUninitialized: true,
   cookie: {
-    maxAge: 24 * 60 * 60 * 365 * 1000
+    maxAge: 24 * 60 * 60 * 365 * 1000,
+    secure: process.env.NODE_ENV === 'production'
   },
-  name: 'openboardgames'
+  name: process.env.COOOKIE_NAME
 }));
 
 import "./config/passport";
@@ -37,6 +47,6 @@ app.get('/', (req, res) => {
   res.render('index', { user: req.user });
 });
 
-app.listen( port, () => {
-  console.log( `server started at http://localhost:${ port }` );
+app.listen( process.env.EXPRESS_PORT, () => {
+  console.log( `server started at http://localhost:${ process.env.EXPRESS_PORT }` );
 });

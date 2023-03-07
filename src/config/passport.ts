@@ -18,13 +18,18 @@ import { initModels } from "../../database/models/init-models"
 const models = initModels(sequelize);
 
 passport.serializeUser(function(user, done) {
-  done(null, user.id);
+  done(null, <ISession>{id: user.id, token: user.token});
 });
 
-passport.deserializeUser(async (id, done) => {
+interface ISession {
+  id: number,
+  token: string
+}
+
+passport.deserializeUser(async (sess: ISession, done) => {
     let user = await models.users.findOne({
       where: {
-        id: id
+        id: sess.id
       }
     });
 
@@ -66,6 +71,13 @@ passport.use(
             done(null, newUser);
           }
         } else {
+          var token = jwt.sign({id: user.id}, process.env.JWT_SECRET, {expiresIn: '1h'});
+
+          await models.users.update(
+            { token: token },
+            { where: { id: user.id }}
+          );
+
           const result = await models.users.update(
             { token: token },
             { where: { id: user.id}}
