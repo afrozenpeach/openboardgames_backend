@@ -45,7 +45,6 @@ passport.use(
             google_id: profile.id
           }
         });
-        var token = jwt.sign({id: user.id}, process.env.JWT_SECRET, {expiresIn: '1h'});
 
         if (!user) {
           let newUser = await models.users.create({
@@ -53,9 +52,15 @@ passport.use(
             name: profile.name.givenName + (profile.name.middleName != undefined ? " " + profile.name.middleName : "") + " " + profile.name.familyName,
             google_id: profile.id,
             date_registered: new Date(),
-            email: profile.emails[0].value,
-            token: token
+            email: profile.emails[0].value
           });
+
+          var token = jwt.sign({id: newUser.id}, process.env.JWT_SECRET, {expiresIn: '1h'});
+
+          await models.users.update(
+            { token: token },
+            { where: { id: newUser.id }}
+          );
 
           if (newUser) {
             done(null, newUser);
