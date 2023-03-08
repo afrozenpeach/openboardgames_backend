@@ -5,7 +5,7 @@ const router = express.Router();
 
 router.get("/login", (req, res) => {
   if (req.user) {
-    res.redirect("http://localhost:3000/profile");
+    res.redirect("http://localhost:3000");
   }
   res.render("login");
 });
@@ -18,9 +18,9 @@ router.get("/login/success", (req, res) => {
       user: req.user
     });
   } else {
-    res.json({
+    res.status(401).json({
       success: false,
-      message: "user has not authenticated"
+      message: "user is not authenticated"
     })
   }
 });
@@ -37,7 +37,7 @@ router.get("/google", passport.authenticate("google", {
 }));
 
 router.get("/google/callback", passport.authenticate('google', { failureRedirect: '/login/failure' }), (req, res) => {
-  res.redirect("http://localhost:3000/profile");
+  res.redirect("http://localhost:3000");
 });
 
 router.get("/logout", (req, res, next) => {

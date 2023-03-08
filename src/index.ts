@@ -13,7 +13,7 @@ import cors from "cors";
 
 app.use(
   cors({
-    origin: `https://localhost:${ process.env.PORT }`,
+    origin: `http://localhost:${ process.env.PORT }`,
     methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
     credentials: true
   })
